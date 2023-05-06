@@ -1,0 +1,69 @@
+version: "3"
+
+services:
+  site1-web:
+    build: docker/nginx/site1
+    ports:
+      - 8001:80
+    volumes:
+      - ./sites/site1:/srv/www
+    networks:
+      - www
+    depends_on:
+      - site1-phpfpm
+
+  site1-phpfpm:
+    build: docker/phpfpm
+    volumes:
+      - ./sites/site1:/srv/www
+    networks:
+      - www
+    depends_on:
+      - site1-mysql
+
+  site1-mysql:
+    image: percona
+    ports:
+      - 33061:3306
+    volumes:
+      - site1-dbdata:/var/lib/mysql
+    networks:
+      - www
+    env_file: docker/mysql/.env
+
+  site2-web:
+    build: docker/nginx/site2
+    ports:
+      - 8002:80
+    volumes:
+      - ./sites/site2:/srv/www
+    networks:
+      - www
+    depends_on:
+      - site2-phpfpm
+
+  site2-phpfpm:
+    build: docker/phpfpm
+    volumes:
+      - ./sites/site2:/srv/www
+    networks:
+      - www
+    depends_on:
+      - site2-mysql
+
+  site2-mysql:
+    image: percona
+    ports:
+      - 33062:3306
+    volumes:
+      - site2-dbdata:/var/lib/mysql
+    networks:
+      - www
+    env_file: docker/mysql/.env
+
+volumes:
+  site1-dbdata:
+  site2-dbdata:
+
+networks:
+  www:
